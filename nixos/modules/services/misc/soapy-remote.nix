@@ -5,11 +5,11 @@
   ...
 }:
 let
-  cfg = config.services.soapyRemote;
+  cfg = config.services.soapy-remote;
 in
 {
-  options.services.soapyRemote = {
-    enable = lib.mkEnableOption "SoapyRemote, a server for SoapySDR";
+  options.services.soapy-remote = {
+    enable = lib.mkEnableOption "SoapyRemote, a Server for streaming SDR data over the Network";
     package = lib.mkPackageOption pkgs "soapyremote" { };
     host = lib.mkOption {
       type = lib.types.str;
@@ -27,19 +27,19 @@ in
       description = "Open the defined port in the Firewall";
     };
   };
-  config.systemd.services.soapyRemote = {
-    description = "SoapySdrServer";
+  config.systemd.services.soapy-remote = {
+    description = "SoapyRemote, a Server for streaming SDR data over the Network";
     wants = [ "network-online.target" ];
     after = [ "network-online.target" ];
     serviceConfig = {
-      ExecStart = "${lib.getExe cfg.package} --bind ${cfg.host}:${toString cfg.port}";
+      ExecStart = "${lib.getExe cfg.package} --bind=${cfg.host}:${toString cfg.port}";
       KillMode = "process";
       Restart = "on-failure";
       LimitRTPRIO = 99;
     };
     wantedBy = [ "multi-user.target" ];
   };
-  networking.firewall = lib.mkIf cfg.openFirewall {
+  config.networking.firewall = lib.mkIf cfg.openFirewall {
     allowedTCPPorts = [ cfg.port ];
     allowedUDPPorts = [ cfg.port ];
   };
